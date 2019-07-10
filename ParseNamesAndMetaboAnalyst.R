@@ -146,7 +146,7 @@ IDlist_kegg$ChEBI = as.character(IDlist_kegg$ChEBI)
 IDlist_kegg$METLIN = as.character(IDlist_kegg$METLIN)
 
 
-FinalMatrix = dplyr::full_join(FullNamesAndMetaboAnalystResult, IDlist_kegg, by=c("GMDandPRIMe_names"="Name", "Match"="Match", "HMDB"="HMDB" ,  "PubChem"= "PubChem","ChEBI"="ChEBI",   "KEGG" = "KEGG" ,"METLIN"="METLIN", "SMILES"  ="SMILES"   ) )
+FinalMatrix = dplyr::right_join(FullNamesAndMetaboAnalystResult, IDlist_kegg, by=c("GMDandPRIMe_names"="Name", "Match"="Match", "HMDB"="HMDB" ,  "PubChem"= "PubChem","ChEBI"="ChEBI",   "KEGG" = "KEGG" ,"METLIN"="METLIN", "SMILES"  ="SMILES"   ) )
 
 
 write.csv(FinalMatrix, "FinalMatrix.csv", row.names = FALSE)
