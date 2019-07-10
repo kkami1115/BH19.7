@@ -73,6 +73,8 @@ write.csv(MetNames, file = "MetNames.csv", row.names = FALSE)
 
 
 NamesTable = data.frame(GMDandPRIMe_names, MetNames)
+NamesTable$GMDandPRIMe_names = as.character(NamesTable$GMDandPRIMe_names)
+NamesTable$MetNames = as.character(NamesTable$MetNames)
 write.csv(NamesTable, "NamesTable.csv", row.names = FALSE)
 
 #要注意
@@ -117,20 +119,34 @@ mSet<-Setup.MapData(mSet, cmpd.vec);
 mSet<-CrossReferencing(mSet, "name", T, T, T, T, T);
 mSet<-CreateMappingResultTable(mSet)
 
-MetaboAnalystResult = data.frame(mSet$dataSet$map.table)
+MetaboAnalystResult = data.frame(mSet$dataSet$map.table[,!colnames(mSet$dataSet$map.table)=="Comment"])
+MetaboAnalystResult$Query = as.character(MetaboAnalystResult$Query)
+MetaboAnalystResult$Match = as.character(MetaboAnalystResult$Match)
+MetaboAnalystResult$HMDB = as.character(MetaboAnalystResult$HMDB)
+MetaboAnalystResult$PubChem = as.character(MetaboAnalystResult$PubChem)
+MetaboAnalystResult$ChEBI = as.character(MetaboAnalystResult$ChEBI)
+MetaboAnalystResult$KEGG = as.character(MetaboAnalystResult$KEGG)
+MetaboAnalystResult$METLIN = as.character(MetaboAnalystResult$METLIN)
+MetaboAnalystResult$SMILES = as.character(MetaboAnalystResult$SMILES)
+
+
 write.csv(MetaboAnalystResult, "MetaboAnalystResult.csv", row.names=TRUE)
 
 
 # merge namesTable and MetaboAnalystResult
-FullNamesAndMetaboAnalystResult = cbind(NamesTable, MetaboAnalystResult[-1])
+FullNamesAndMetaboAnalystResult =  cbind(NamesTable, MetaboAnalystResult[-1])
 
 
 #aono ga yatta msp kara totta name to KEGG no list kara yatta metaboanalyst no kekka to merge
 
 IDlist_kegg <- read.csv("IDlist_kegg.csv", stringsAsFactors = FALSE)
+IDlist_kegg = data.frame( IDlist_kegg[,!colnames(IDlist_kegg)=="ID" & !colnames(IDlist_kegg)=="Query"])
+IDlist_kegg$PubChem = as.character(IDlist_kegg$PubChem)
+IDlist_kegg$ChEBI = as.character(IDlist_kegg$ChEBI)
+IDlist_kegg$METLIN = as.character(IDlist_kegg$METLIN)
 
-FinalMatrix = dplyr::inner_join(FullNamesAndMetaboAnalystResult, IDlist_kegg[-1], by=c("GMDandPRIMe_names"="Name"))
 
-write.csv(FinalMatrix, "FinalMatrix.csv", row.names = FALSE)
+FinalMatrix = dplyr::full_join(FullNamesAndMetaboAnalystResult, IDlist_kegg, by=c("GMDandPRIMe_names"="Name", "Match"="Match", "HMDB"="HMDB" ,  "PubChem"= "PubChem","ChEBI"="ChEBI",   "KEGG" = "KEGG" ,"METLIN"="METLIN", "SMILES"  ="SMILES"   ) )
+
 
 write.csv(FinalMatrix, "FinalMatrix.csv", row.names = FALSE)
