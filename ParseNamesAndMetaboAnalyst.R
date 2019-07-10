@@ -131,5 +131,6 @@ IDlist_kegg <- read.csv("IDlist_kegg.csv", stringsAsFactors = FALSE)
 
 FinalMatrix = dplyr::inner_join(FullNamesAndMetaboAnalystResult, IDlist_kegg[-1], by=c("GMDandPRIMe_names"="Name"))
 
+write.csv(FinalMatrix, "FinalMatrix.csv", row.names = FALSE)
 
 write.csv(FinalMatrix, "FinalMatrix.csv", row.names = FALSE)
