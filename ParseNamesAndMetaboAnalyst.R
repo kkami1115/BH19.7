@@ -121,4 +121,13 @@ MetaboAnalystResult = data.frame(mSet$dataSet$map.table)
 write.csv(MetaboAnalystResult, "MetaboAnalystResult.csv", row.names=TRUE)
 
 
+# merge namesTable and MetaboAnalystResult
+FullNamesAndMetaboAnalystResult = cbind(NamesTable, MetaboAnalystResult[-1])
+
+
+#aono ga yatta msp kara totta name to KEGG no list kara yatta metaboanalyst no kekka to merge
+
+IDlist_kegg <- read.csv("IDlist_kegg.csv", stringsAsFactors = FALSE)
+
+FinalMatrix = dplyr::inner_join(FullNamesAndMetaboAnalystResult, IDlist_kegg[-1], by=c("GMDandPRIMe_names"="Name"))
 
