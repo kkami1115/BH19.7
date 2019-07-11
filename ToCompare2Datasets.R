@@ -2,7 +2,7 @@
 library(tidyverse)
 
 #ディレクトリ指定の部分
-Directry= "MTBLS40vsMTBLS45"
+Directry= "レタス"
 
 
 # ID読み込みの部分
@@ -10,7 +10,7 @@ files = list.files(Directry)
 filename_1 = files[stringr::str_detect(files, "GetPubChem")][1]
 file_1 = read_csv(file = paste(Directry, filename_1, sep = "/"), col_names = FALSE)
 IDs_1 = as.character(file_1$X2[!is.na(file_1$X2)])
-filename_2 = files[stringr::str_detect(files, "GetPubChem")][2]
+filename_2 = files[stringr::str_detect(files, "name_map")][1]
 file_2 = read_csv(file = paste(Directry, filename_2, sep = "/"), col_names = FALSE)
 IDs_2 = as.character(file_2$X2[!is.na(file_2$X2)])
 
@@ -21,14 +21,15 @@ VennList = list(IDs_1, IDs_2)
 ##pathlist読み込み
 pathlist = readxl::read_excel("pathlist.xlsx")
 ##filenameと合うdatasetnameを探す
-dsname_1 = pathlist$datasetname[pathlist$GetPubChem == filename_1]
-dsname_2 = pathlist$datasetname[pathlist$GetPubChem == filename_2]
+dsname = pathlist$datasetname[pathlist$GetPubChem == filename_1]
+dsname_1 = paste(dsname, "ReAnnotated", sep = "_")
+dsname_2 = paste(dsname, "Published", sep = "_")
 names(VennList) = c(dsname_1, dsname_2)
 
 
 #描く部分
 library(VennDiagram)
-VennDiagram::venn.diagram(VennList, filename = paste(Directry, "/", Directry, ".png", sep = ""))
+VennDiagram::venn.diagram(VennList, filename = paste(Directry, "/", Directry, ".png", sep = ""),cat.pos=c(0,0) )
 
 ##tableの読み込み
 IDlist = read_csv("IDlist.csv", col_types = cols("c","c","c","c","c","c","c","c","c","c","c","c","c","c","c"))
