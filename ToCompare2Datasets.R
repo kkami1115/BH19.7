@@ -2,7 +2,7 @@
 library(tidyverse)
 
 #ディレクトリ指定の部分
-Directry= "レタス"
+Directry= "ナズナの地上部"
 
 
 # ID読み込みの部分
