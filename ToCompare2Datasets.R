@@ -2,7 +2,7 @@
 library(tidyverse)
 
 #ディレクトリ指定の部分
-Directry= "ナズナの地上部"
+Directry= "イネ"
 
 
 # ID読み込みの部分
@@ -38,38 +38,40 @@ IDlist = read_csv("IDlist.csv", col_types = cols("c","c","c","c","c","c","c","c"
 IDs1_Only = data.frame(setdiff(IDs_1, IDs_2))
 IDs1_Only$setdiff.IDs_1..IDs_2. = as.character(IDs1_Only$setdiff.IDs_1..IDs_2.)
 IDs1OnlyAndNames = inner_join(IDs1_Only, IDlist, by = c("setdiff.IDs_1..IDs_2." = "PubChem"))
-IDs1OnlyAndNames = IDs1OnlyAndNames[,c("setdiff.IDs_1..IDs_2.", "Match")]
 
-conv.id1 <- IDs1OnlyAndNames$Match
-names(conv.id1) <- IDs1OnlyAndNames$setdiff.IDs_1..IDs_2.
+conv.id1 = IDs1OnlyAndNames$MetNames
+names(conv.id1) = IDs1OnlyAndNames$setdiff.IDs_1..IDs_2.
 
-IDs1OnlyAndNamesUnique = conv.id1[IDs1_Only$setdiff.IDs_1..IDs_2.]
+IDs1OnlyAndNamesUnique = unique(conv.id1[IDs1OnlyAndNames$setdiff.IDs_1..IDs_2.])
+
 
 IDs2_Only = data.frame(setdiff(IDs_2, IDs_1))
 IDs2_Only$setdiff.IDs_2..IDs_1. = as.character(IDs2_Only$setdiff.IDs_2..IDs_1.)
 IDs2OnlyAndNames = inner_join(IDs2_Only, IDlist, by = c("setdiff.IDs_2..IDs_1." = "PubChem"))
-IDs2OnlyAndNames = IDs2OnlyAndNames[,c("setdiff.IDs_2..IDs_1.", "Match")]
+conv.id2 = IDs2OnlyAndNames$MetNames
+names(conv.id2) = IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.
 
-conv.id2 <- IDs2OnlyAndNames$Match
-names(conv.id2) <- IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.
-
-IDs2OnlyAndNamesUnique = conv.id2[IDs2_Only$setdiff.IDs_2..IDs_1.]
+IDs2OnlyAndNamesUnique = unique(conv.id2[IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.])
 
 
 #積を求める部分
 IDs_common = data.frame(intersect(IDs_2, IDs_1))
 IDs_common$intersect.IDs_2..IDs_1. = as.character(IDs_common$intersect.IDs_2..IDs_1.)
 IDsCommonAndNames = inner_join(IDs_common, IDlist, by = c("intersect.IDs_2..IDs_1." = "PubChem"))
-IDsCommonAndNames = IDsCommonAndNames[,c("intersect.IDs_2..IDs_1.", "Match")]
+conv.idcommon = IDsCommonAndNames$MetNames
+names(conv.idcommon) = IDsCommonAndNames$intersect.IDs_2..IDs_1.
 
-conv.idcommon = IDsCommonAndNames$Match
-names(conv.idcommon) <- IDsCommonAndNames$intersect.IDs_2..IDs_1.
+IDsCommonAndNamesUnique = unique(conv.idcommon[IDsCommonAndNames$intersect.IDs_2..IDs_1.])
 
-IDsCommonAndNamesUnique = conv.idcommon[IDsCommonAndNames$intersect.IDs_2..IDs_1.]
+
+#出力整形
+IDs = list(data.frame(IDs1_Only$setdiff.IDs_1..IDs_2.),data.frame(IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.),data.frame(IDsCommonAndNames$intersect.IDs_2..IDs_1.))
+Names = list(data.frame(IDs1OnlyAndNamesUnique), data.frame(IDs2OnlyAndNamesUnique), data.frame(IDsCommonAndNamesUnique))
 
 
 
 #IDの結果を書き込む部分
-openxlsx::write.xlsx(list(data.frame(IDs1OnlyAndNamesUnique), data.frame(IDs2_Only),data.frame(IDs_common)),file  =paste(Directry, "/", Directry, ".xlsx", sep = ""),row.names=TRUE  )
+openxlsx::write.xlsx(IDs, file  =paste(Directry, "/", Directry,"_IDs", ".xlsx", sep = ""),row.names=TRUE  )
+openxlsx::write.xlsx(Names, file  =paste(Directry, "/", Directry,"_Names", ".xlsx", sep = ""),row.names=TRUE  )
 
 
