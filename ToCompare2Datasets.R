@@ -1,18 +1,19 @@
 
+
 library(tidyverse)
 
 #ディレクトリ指定の部分
-Directry= "イネ"
+Directry= "トマト"
 
 
 # ID読み込みの部分
 files = list.files(Directry)
 filename_1 = files[stringr::str_detect(files, "GetPubChem")][1]
 file_1 = read_csv(file = paste(Directry, filename_1, sep = "/"), col_names = FALSE)
-IDs_1 = as.character(file_1$X2[!is.na(file_1$X2)])
+IDs_1 = unique(as.character(file_1$X2[!is.na(file_1$X2)])[-1])
 filename_2 = files[stringr::str_detect(files, "name_map")][1]
 file_2 = read_csv(file = paste(Directry, filename_2, sep = "/"), col_names = FALSE)
-IDs_2 = as.character(file_2$X2[!is.na(file_2$X2)])
+IDs_2 = unique(as.character(file_2$X2[!is.na(file_2$X2)])[-1])
 
 
 
@@ -24,12 +25,12 @@ pathlist = readxl::read_excel("pathlist.xlsx")
 dsname = pathlist$datasetname[pathlist$GetPubChem == filename_1]
 dsname_1 = paste(dsname, "ReAnnotated", sep = "_")
 dsname_2 = paste(dsname, "Published", sep = "_")
-names(VennList) = c(dsname_1, dsname_2)
 
+names(VennList) = c(dsname_1, dsname_2)
 
 #描く部分
 library(VennDiagram)
-VennDiagram::venn.diagram(VennList, filename = paste(Directry, "/", Directry, ".png", sep = ""),cat.pos=c(0,0) )
+VennDiagram::venn.diagram(VennList, filename = paste(Directry, "/", Directry, ".png", sep = ""), height = 3000, width = 3000,cat.pos=c(0,0),scaled=F,cex=2.5, cat.cex=0.9)
 
 ##tableの読み込み
 IDlist = read_csv("IDlist.csv", col_types = cols("c","c","c","c","c","c","c","c","c","c","c","c","c","c","c"))
@@ -56,7 +57,7 @@ IDs2OnlyAndNamesUnique = unique(conv.id2[IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.]
 
 #積を求める部分
 IDs_common = data.frame(intersect(IDs_2, IDs_1))
-IDs_common$intersect.IDs_2..IDs_1. = as.character(IDs_common$intersect.IDs_2..IDs_1.)
+IDs_common$intersect.IDs_2..IDs_1. = unique( (IDs_common$intersect.IDs_2..IDs_1.))
 IDsCommonAndNames = inner_join(IDs_common, IDlist, by = c("intersect.IDs_2..IDs_1." = "PubChem"))
 conv.idcommon = IDsCommonAndNames$MetNames
 names(conv.idcommon) = IDsCommonAndNames$intersect.IDs_2..IDs_1.
@@ -65,7 +66,7 @@ IDsCommonAndNamesUnique = unique(conv.idcommon[IDsCommonAndNames$intersect.IDs_2
 
 
 #出力整形
-IDs = list(data.frame(IDs1_Only$setdiff.IDs_1..IDs_2.),data.frame(IDs2OnlyAndNames$setdiff.IDs_2..IDs_1.),data.frame(IDsCommonAndNames$intersect.IDs_2..IDs_1.))
+IDs = list(data.frame(IDs1_Only),data.frame(IDs2_Only),data.frame(IDs_common))
 Names = list(data.frame(IDs1OnlyAndNamesUnique), data.frame(IDs2OnlyAndNamesUnique), data.frame(IDsCommonAndNamesUnique))
 
 
