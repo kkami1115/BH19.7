@@ -146,8 +146,8 @@ IDlist_kegg$ChEBI = as.character(IDlist_kegg$ChEBI)
 IDlist_kegg$METLIN = as.character(IDlist_kegg$METLIN)
 
 
-FinalMatrix =  left_join(IDlist_kegg %>% gather(key, val1) %>% rowid_to_column(),
-          FullNamesAndMetaboAnalystResult %>% gather(key, val2) %>% rowid_to_column(),
+FinalMatrix =  left_join(IDlist_kegg[,2:8] %>% gather(key, val1) %>% rowid_to_column(),
+          FullNamesAndMetaboAnalystResult[,3:9] %>% gather(key, val2) %>% rowid_to_column(),
           by = c("rowid", "key")) %>% 
   mutate(val = val1,
          val = ifelse(is.na(val1), val2, val),
@@ -156,26 +156,7 @@ FinalMatrix =  left_join(IDlist_kegg %>% gather(key, val1) %>% rowid_to_column()
   spread(key, val) %>% 
   select(-rowid)
 
-
-
-# ぞれぞれtidyに
-# 行番号を各レコードの識別子にしておく
-IDlist_kegg_tidy <- IDlist_kegg[,2:8] %>% 
-  rownames_to_column(var = "no") %>% 
-  gather(key = "var_name", value = "value", -no)
-FullNamesAndMetaboAnalystResult_tidy <- FullNamesAndMetaboAnalystResult[,3:9] %>% 
-  rownames_to_column(var = "no") %>% 
-  gather(key = "var_name", value = "value", -no)
-
-# 結合して整理
-# まずはレコードの識別子と変数名でfull joinしてマッチング
-df <- full_join(IDlist_kegg_tidy, FullNamesAndMetaboAnalystResult_tidy, by = c("no", "var_name")) %>% 
-  # ポイント: coalesceで「NAじゃない最初の値」を持ってくる
-  mutate(value = coalesce(value.y, value.x)) %>% 
-  # あとは必要な列だけ選択してspread
-  select(no, var_name, value) %>% 
-  spread(var_name, value)
-
+FinalMatrix = cbind(FullNamesAndMetaboAnalystResult[,1:2], FinalMatrix, IDlist_kegg[,c(1,9:14)])
 
 
 
